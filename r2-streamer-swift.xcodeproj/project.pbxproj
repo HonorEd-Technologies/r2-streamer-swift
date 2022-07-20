@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -15,6 +15,7 @@
 		176FD8893860CC92972B62A7 /* Seekable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1414E837911A91CB2D87B1 /* Seekable.swift */; };
 		17FFE9D05A783A64C3C6CC39 /* CBZParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D91E49248ACA7A15ECE10AF /* CBZParser.swift */; };
 		1CB524D2A3A4C530C0C49664 /* Parser+Deprecated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 216D9256D69E394757161650 /* Parser+Deprecated.swift */; };
+		23142A1E288871BE00B04BEE /* EPUBTrimmer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23142A1D288871BE00B04BEE /* EPUBTrimmer.swift */; };
 		2717D3A2A86685D167569105 /* OPFParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D8C2C5E9E9C2BA3A2AF9D98 /* OPFParser.swift */; };
 		30B1ECBD5A85290C98B2DB8D /* EPUBEncryptionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE584B472F6C941595CFA461 /* EPUBEncryptionParser.swift */; };
 		3254949D5A6C5EA356B5DD7A /* ReadiumWebPubParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B75D0A22A8B071D2F1CAF65 /* ReadiumWebPubParser.swift */; };
@@ -70,6 +71,7 @@
 		16E0B032AC40AD89C2704BA6 /* AudioParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioParser.swift; sourceTree = "<group>"; };
 		1CC80F73E026FD3528FF8823 /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		216D9256D69E394757161650 /* Parser+Deprecated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Parser+Deprecated.swift"; sourceTree = "<group>"; };
+		23142A1D288871BE00B04BEE /* EPUBTrimmer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EPUBTrimmer.swift; sourceTree = "<group>"; };
 		24B062E20F25E903D1AE656B /* ImageParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageParser.swift; sourceTree = "<group>"; };
 		26E7D3A0820FC03F8F3C1EE6 /* GCDWebServer.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GCDWebServer.xcframework; path = Carthage/Build/GCDWebServer.xcframework; sourceTree = "<group>"; };
 		2D8C2C5E9E9C2BA3A2AF9D98 /* OPFParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OPFParser.swift; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 			children = (
 				FAE70B0564636605E0990785 /* EPUBDeobfuscator.swift */,
 				B21D76D41DD6EA9031BC6DE4 /* EPUBHTMLInjector.swift */,
+				23142A1D288871BE00B04BEE /* EPUBTrimmer.swift */,
 			);
 			path = "Resource Transformers";
 			sourceTree = "<group>";
@@ -392,8 +395,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1250;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = DF44B909883E6BE4E1B55672 /* Build configuration list for PBXProject "r2-streamer-swift" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -441,6 +442,7 @@
 				30B1ECBD5A85290C98B2DB8D /* EPUBEncryptionParser.swift in Sources */,
 				A33594DFEA105934B272AD8D /* EPUBHTMLInjector.swift in Sources */,
 				A3916E665F5BFB63CE3C95FD /* EPUBMetadataParser.swift in Sources */,
+				23142A1E288871BE00B04BEE /* EPUBTrimmer.swift in Sources */,
 				9C2ED645C5AF6B977E4BDB5E /* EPUBParser.swift in Sources */,
 				3E7572EEEB5AC81FF2491EF5 /* EPUBPositionsService.swift in Sources */,
 				F05B1C6EF9F46689494081E7 /* Fetcher.swift in Sources */,
