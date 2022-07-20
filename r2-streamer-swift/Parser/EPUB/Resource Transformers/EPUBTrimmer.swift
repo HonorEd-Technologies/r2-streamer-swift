@@ -102,3 +102,5 @@ public func startIndexOfLink(in content: String, link: Link) -> Int? {
         return nil
     }
 }
+
+private let contentDivString = "<!--#content-->"
