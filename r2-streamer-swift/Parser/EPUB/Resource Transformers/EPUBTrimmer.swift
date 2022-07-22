@@ -49,13 +49,42 @@ public func trimContent(content: inout String, inChapter chapter: Link, nextLink
                     content.removeSubrange(content.index(content.startIndex, offsetBy: indexOfEnclosingBeforeTag)..<content.index(content.startIndex, offsetBy: indexOfEnclosingAfterTag))
                 }
             } else {
-                let divString = "</div>"
-                if let contentDivIndex = content.range(of: contentDivString)?.lowerBound {
-                    let indexOfDiv = content.index(contentDivIndex, offsetBy: -divString.count)
-                    content.removeSubrange(content.index(content.startIndex, offsetBy: indexOfEnclosingBeforeTag)..<indexOfDiv)
+                var trimmedContent = content
+                
+                trimmedContent.removeSubrange(trimmedContent.index(trimmedContent.startIndex, offsetBy: indexOfEnclosingBeforeTag)..<trimmedContent.endIndex)
+                let unfulfilledTags = unfullfilledTagsInOrder(trimmedContent, startIndex: nil, endIndex: nil)
+                var endString = ""
+                var numOccurences: [String: Int] = [:]
+                for i in 0..<unfulfilledTags.count {
+                    let tag = unfulfilledTags[i]
+                    findEndTagFromEndString(within: content, tag: tag, endString: &endString, position: numOccurences[tag] ?? 0)
+                    numOccurences[tag] = (numOccurences[tag] ?? 0) + 1
                 }
+                trimmedContent += endString
+                content = trimmedContent
             }
         }
+    }
+}
+
+public func findEndTagFromEndString(within content: String, tag: String, endString: inout String, position: Int) {
+    let endTag = #"<\/(\s)*"# + tag + #"(\s)*>"#
+    let matches = matches(for: endTag, in: content)
+    guard matches.count - 1 - position >= 0 && position >= 0 else { return }
+    let match = matches[matches.count - position - 1]
+    endString = String(content[content.index(content.startIndex, offsetBy: match.lowerBound)..<content.endIndex])
+}
+
+func matches(for regex: String, in text: String) -> [NSRange] {
+
+    do {
+        let regex = try NSRegularExpression(pattern: regex)
+        let results = regex.matches(in: text,
+                                    range: NSRange(text.startIndex..., in: text))
+        return results.map({ $0.range })
+    } catch let error {
+        print("invalid regex: \(error.localizedDescription)")
+        return []
     }
 }
 
@@ -79,20 +108,9 @@ public func indexOf(_ content: String, at index: Int, after: Character) -> Int? 
     return nil
 }
 
-public func indexOf(_ content: String, at index: Int, before: Character) -> Int? {
-    var newIndex = index
-    while newIndex < content.count {
-        if content[content.index(content.startIndex, offsetBy: newIndex)] == before {
-            return newIndex
-        }
-        newIndex += 1
-    }
-    return nil
-}
-
 public func startIndexOfLink(in content: String, link: Link) -> Int? {
     guard let title = link.title else { return nil }
-    if let id = link.href.split(separator: "#").last, let index = content.range(of: id)?.lowerBound {
+    if let id = link.href.split(separator: "#").last, let index = content.range(of: "id=\"\(id)\"")?.lowerBound {
         return content.distance(from: content.startIndex, to: index)
     } else if let index = content.range(of: title)?.lowerBound {
         return content.distance(from: content.startIndex, to: index)
@@ -103,4 +121,52 @@ public func startIndexOfLink(in content: String, link: Link) -> Int? {
     }
 }
 
-private let contentDivString = "<!--#content-->"
+
+public func unfullfilledTagsInOrder(_ content: String, startIndex: String.Index?, endIndex: String.Index?) -> [String] {
+    var tagArray: [String] = []
+    var trimmedContent = String(content[(startIndex ?? content.startIndex)..<(endIndex ?? content.endIndex)])
+    guard var startTagIndex = trimmedContent.firstIndex(of: "<") else { return tagArray }
+    var endTagIndex = startTagIndex
+    while endTagIndex < trimmedContent.endIndex {
+        let char = trimmedContent[endTagIndex]
+        if char == ">" {
+            if trimmedContent[trimmedContent.index(startTagIndex, offsetBy: 1)] == "/" {
+                if let tag = tagFromContent(trimmedContent, startingAt: startTagIndex) {
+                    tagArray.popLast()
+                }
+            } else if trimmedContent[trimmedContent.index(endTagIndex, offsetBy: -1)] != "/" {
+                if let tag = tagFromContent(trimmedContent, startingAt: startTagIndex) {
+                    tagArray.append(tag)
+                }
+            }
+            trimmedContent = String(trimmedContent[trimmedContent.index(endTagIndex, offsetBy: 1)..<(endIndex ?? trimmedContent.endIndex)])
+            if let nextStartTag = trimmedContent.firstIndex(of: "<") {
+                startTagIndex = nextStartTag
+                endTagIndex = startTagIndex
+            } else {
+                break
+            }
+        } else {
+            endTagIndex = content.index(endTagIndex, offsetBy: 1)
+        }
+    }
+    return tagArray
+}
+
+public func tagFromContent(_ content: String, startingAt index: String.Index) -> String? {
+    guard content[index] == "<" else { return nil }
+    var nextIndex = content.index(index, offsetBy: 1)
+    guard content[nextIndex] != "!", content[nextIndex] != "?" else { return nil }
+    if content[nextIndex] == "/" {
+        nextIndex = content.index(nextIndex, offsetBy: 1)
+    }
+    var char = content[nextIndex]
+    var string = ""
+    while char != ">" && char != "/" && char != " " {
+        string.append(char)
+        nextIndex = content.index(nextIndex, offsetBy: 1)
+        char = content[nextIndex]
+    }
+    
+    return string
+}
