@@ -53,18 +53,22 @@ public func trimContent(content: inout String, inChapter chapter: Link, nextLink
                 
                 trimmedContent.removeSubrange(trimmedContent.index(trimmedContent.startIndex, offsetBy: indexOfEnclosingBeforeTag)..<trimmedContent.endIndex)
                 let unfulfilledTags = unfullfilledTagsInOrder(trimmedContent, startIndex: nil, endIndex: nil)
-                var endString = ""
-                var numOccurences: [String: Int] = [:]
-                for i in 0..<unfulfilledTags.count {
-                    let tag = unfulfilledTags[i]
-                    findEndTagFromEndString(within: content, tag: tag, endString: &endString, position: numOccurences[tag] ?? 0)
-                    numOccurences[tag] = (numOccurences[tag] ?? 0) + 1
-                }
-                trimmedContent += endString
+                populateEndOfEPUBChapter(content: content, trimmedContent: &trimmedContent, tags: unfulfilledTags)
                 content = trimmedContent
             }
         }
     }
+}
+
+public func populateEndOfEPUBChapter(content: String, trimmedContent: inout String, tags: [String]) {
+    var endString = ""
+    var numOccurences: [String: Int] = [:]
+    for i in 0..<tags.count {
+        let tag = tags[i]
+        findEndTagFromEndString(within: content, tag: tag, endString: &endString, position: numOccurences[tag] ?? 0)
+        numOccurences[tag] = (numOccurences[tag] ?? 0) + 1
+    }
+    trimmedContent += endString
 }
 
 public func findEndTagFromEndString(within content: String, tag: String, endString: inout String, position: Int) {
