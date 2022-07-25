@@ -75,7 +75,7 @@ final public class EPUBParser: PublicationParser {
             EPUBHTMLInjector(metadata: components.metadata, userProperties: userProperties).inject]
         
         if let tocLinks = navigationDocument(in: fetcher, links: links)?.links(for: .tableOfContents), let trimmedToc = trimmedToc {
-            transformers.append(EPUBTrimmer(trimmedToc: trimmedToc, toc: tocLinks.flatMap(\.children)).trim)
+            transformers.append(EPUBTrimmer(trimmedToc: trimmedToc, toc: tocLinks.flatMap(\.children).flatMap({ [$0] + $0.children })).trim)
         }
 
         return Publication.Builder(
