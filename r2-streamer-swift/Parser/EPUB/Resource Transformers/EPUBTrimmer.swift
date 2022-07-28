@@ -160,13 +160,20 @@ public func unfullfilledTagsInOrder(_ content: String, startIndex: String.Index?
 public func tagFromContent(_ content: String, startingAt index: String.Index) -> String? {
     guard content[index] == "<" else { return nil }
     var nextIndex = content.index(index, offsetBy: 1)
+    var prependingWhiteText = true
     guard content[nextIndex] != "!", content[nextIndex] != "?" else { return nil }
     if content[nextIndex] == "/" {
         nextIndex = content.index(nextIndex, offsetBy: 1)
     }
     var char = content[nextIndex]
     var string = ""
-    while char != ">" && char != "/" && char != " " {
+    while char != ">" && char != "/" || (char == " " && prependingWhiteText) {
+        if char == " " {
+            nextIndex = content.index(nextIndex, offsetBy: 1)
+            char = content[nextIndex]
+            continue
+        }
+        prependingWhiteText = false
         string.append(char)
         nextIndex = content.index(nextIndex, offsetBy: 1)
         char = content[nextIndex]
