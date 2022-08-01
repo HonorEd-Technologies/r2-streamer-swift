@@ -167,11 +167,13 @@ public func tagFromContent(_ content: String, startingAt index: String.Index) ->
     }
     var char = content[nextIndex]
     var string = ""
-    while char != ">" && char != "/" || (char == " " && prependingWhiteText) {
-        if char == " " {
+    while char != ">" && char != "/" {
+        if char == " " && prependingWhiteText {
             nextIndex = content.index(nextIndex, offsetBy: 1)
             char = content[nextIndex]
             continue
+        } else if char == " " {
+            break
         }
         prependingWhiteText = false
         string.append(char)
