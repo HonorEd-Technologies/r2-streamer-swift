@@ -76,6 +76,8 @@ final public class EPUBParser: PublicationParser {
         
         if let tocLinks = navigationDocument(in: fetcher, links: links)?.links(for: .tableOfContents), let trimmedToc = trimmedToc {
             transformers.append(EPUBTrimmer(trimmedToc: trimmedToc, toc: tocLinks.flatMap(\.children).flatMap({ [$0] + $0.children })).trim)
+        } else if let tocLinks = ncxDocumentToC(in: fetcher, links: links), let trimmedToc = trimmedToc {
+            transformers.append(EPUBTrimmer(trimmedToc: trimmedToc, toc: tocLinks.flatMap(\.children).flatMap({ [$0] + $0.children })).trim)
         }
 
         return Publication.Builder(
@@ -148,6 +150,12 @@ final public class EPUBParser: PublicationParser {
         addCollection(.listOfVideos, role: "lov")
         
         return collections
+    }
+    
+    private func ncxDocumentToC(in fetcher: Fetcher, links: [Link]) -> [Link]? {
+        guard let ncxLink = links.first(withMediaType: .ncx), let ncxDocumentData = try? fetcher.readData(at: ncxLink.href) else { return nil }
+        
+        return NCXParser(data: ncxDocumentData, at: ncxLink.href).links(for: .tableOfContents)
     }
 
     /// Attempt to fill `Publication.tableOfContent`/`.pageList` using the NCX
