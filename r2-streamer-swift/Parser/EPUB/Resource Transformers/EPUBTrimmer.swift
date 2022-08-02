@@ -125,7 +125,15 @@ public func startIndexOfLink(in content: String, link: Link) -> Int? {
     }
 }
 
-
+/**
+ Parses `content: String` as html, in the range specified by `startIndex` and `endIndex`
+ - returns: An array `[String]` containing open tags that were not closed, starting with the *least* deep tag
+ 
+ ##Example##
+ ```
+ let tags = unfulfilledTagsInOrder("<html><div>", startIndex: nil, endIndex: nil) // ["html", "div"]
+ ```
+ */
 public func unfullfilledTagsInOrder(_ content: String, startIndex: String.Index?, endIndex: String.Index?) -> [String] {
     var tagArray: [String] = []
     var trimmedContent = String(content[(startIndex ?? content.startIndex)..<(endIndex ?? content.endIndex)])
@@ -133,17 +141,19 @@ public func unfullfilledTagsInOrder(_ content: String, startIndex: String.Index?
     var endTagIndex = startTagIndex
     while endTagIndex < trimmedContent.endIndex {
         let char = trimmedContent[endTagIndex]
-        if char == ">" {
-            if trimmedContent[trimmedContent.index(startTagIndex, offsetBy: 1)] == "/" {
+        if char == ">" /* reached end of tag */{
+            if trimmedContent[trimmedContent.index(startTagIndex, offsetBy: 1)] == "/" /* Indicates closed tag, should pop last in `tagArray` */ {
                 if let tag = tagFromContent(trimmedContent, startingAt: startTagIndex) {
                     tagArray.popLast()
                 }
-            } else if trimmedContent[trimmedContent.index(endTagIndex, offsetBy: -1)] != "/" {
+            } else if trimmedContent[trimmedContent.index(endTagIndex, offsetBy: -1)] != "/" /* Indicates open tag, should append to `tagArray` */  {
                 if let tag = tagFromContent(trimmedContent, startingAt: startTagIndex) {
                     tagArray.append(tag)
                 }
             }
+            // trim string past endIndex
             trimmedContent = String(trimmedContent[trimmedContent.index(endTagIndex, offsetBy: 1)..<(endIndex ?? trimmedContent.endIndex)])
+            //move indices forward to start iteration again if there is another open tag
             if let nextStartTag = trimmedContent.firstIndex(of: "<") {
                 startTagIndex = nextStartTag
                 endTagIndex = startTagIndex
@@ -168,11 +178,11 @@ public func tagFromContent(_ content: String, startingAt index: String.Index) ->
     var char = content[nextIndex]
     var string = ""
     while char != ">" && char != "/" {
-        if char == " " && prependingWhiteText {
+        if char == " " && prependingWhiteText /* whitespace leading up to tag */ {
             nextIndex = content.index(nextIndex, offsetBy: 1)
             char = content[nextIndex]
             continue
-        } else if char == " " {
+        } else if char == " "  /* whitespace after tag (we already have the tag) */ {
             break
         }
         prependingWhiteText = false
