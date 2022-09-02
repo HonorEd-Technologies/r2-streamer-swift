@@ -93,12 +93,8 @@ func matches(for regex: String, in text: String) -> [NSRange] {
 }
 
 public func containsLink(arr: [Link], element: Link) -> Bool {
-    return arr.compactMap(\.title).filter({
-        if let title = element.title {
-            return $0.contains(title) || title.contains($0)
-        }
-        return false
-    }).count != 0
+    guard element.href.contains("#") else { return true }
+    return arr.map(\.href).filter({ $0 == element.href }).count != 0
 }
 
 public func indexOf(_ content: String, at index: Int, after: Character) -> Int? {
