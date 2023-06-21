@@ -370,9 +370,5 @@ public class PublicationServer: ResourcesServer {
     public func add(_ publication: Publication, with container: Container, at endpoint: String = UUID().uuidString) throws {
         try add(publication, at: endpoint)
     }
-    
-    // Mapping between endpoint and the matching container.
-    public private(set) var containers: [String: Container] = [:]
-    
 }
 
