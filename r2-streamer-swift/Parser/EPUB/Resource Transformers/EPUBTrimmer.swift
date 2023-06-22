@@ -26,16 +26,20 @@ final class EPUBTrimmer {
             var content = content
             
                 // RTL dir attributes injection
-            let indexInChapter = self.toc.filter({ $0.href.contains(resource.link.href) })
-            for i in 0..<indexInChapter.count {
-                var nextLink: Link?
-                if i < indexInChapter.count - 1 {
-                    nextLink = indexInChapter[i + 1]
-                }
-                trimContent(content: &content, inChapter: indexInChapter[i], nextLink: nextLink, given: self.trimmedToc)
-            }
+            let indexInChapter = self.toc.filter({ $0.href.contains(resource.link.href) && $0.href != resource.link.href })
+            trimContent(content: &content, toc: indexInChapter, trimmedToc: self.trimmedToc)
             return content
         }
+    }
+}
+
+public func trimContent(content: inout String, toc: [Link], trimmedToc: [Link]) {
+    for i in 0..<toc.count {
+        var nextLink: Link?
+        if i < toc.count - 1 {
+            nextLink = toc[i + 1]
+        }
+        trimContent(content: &content, inChapter: toc[i], nextLink: nextLink, given: trimmedToc)
     }
 }
 
@@ -74,9 +78,12 @@ public func populateEndOfEPUBChapter(content: String, trimmedContent: inout Stri
 public func findEndTagFromEndString(within content: String, tag: String, endString: inout String, position: Int) {
     let endTag = #"<\/(\s)*"# + tag + #"(\s)*>"#
     let matches = matches(for: endTag, in: content)
-    guard matches.count - 1 - position >= 0 && position >= 0 else { return }
-    let match = matches[matches.count - position - 1]
-    endString = String(content[content.index(content.startIndex, offsetBy: match.lowerBound)..<content.endIndex])
+    if matches.count - 1 - position >= 0 && position >= 0 {
+        let match = matches[matches.count - position - 1]
+        endString = String(content[content.index(content.startIndex, offsetBy: match.lowerBound)..<content.endIndex])
+    } else {
+        endString = ("</\(tag)>\n") + endString
+    }
 }
 
 func matches(for regex: String, in text: String) -> [NSRange] {
